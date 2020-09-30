@@ -28,7 +28,7 @@ export let WETH: string = (network == 'mainnet')
 
 export let USD: string = (network == 'mainnet')
     ? '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48' // USDC
-    : '0x1528f3fcc26d13f7079325fb78d9442607781c8c' // DAI
+    : '0x4f96fe3b7a6cf9725f59d353f723c1bdb64ca6aa' // DAI
 
 export function hexToDecimal(hexString: String, decimals: i32): BigDecimal {
     let bytes = Bytes.fromHexString(hexString).reverse() as Bytes
