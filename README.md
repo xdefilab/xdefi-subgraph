@@ -1,6 +1,6 @@
-# 📊 XDefi Subgraph
+# 📊 XDEFI-BASE Subgraph
 
-Aims to deliver analytics & historical data for XDefi. 
+Aims to deliver analytics & historical data for XDEFI-BASE. 
 
 Still a work in progress. Feel free to contribute!
 

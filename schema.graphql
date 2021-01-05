@@ -1,6 +1,6 @@
-type Balancer @entity {
+type XDEFI @entity {
     id: ID!
-    color: String!                                      # Bronze, Silver, Gold
+    version: String!                                      
     poolCount: Int!                                     # Number of pools
     finalizedPoolCount: Int!                            # Number of finalized pools
     pools: [Pool!] @derivedFrom(field: "factoryID")
@@ -17,6 +17,7 @@ type Pool @entity {
     finalized: Boolean!                                 # isFinalized
     active: Boolean!                                    # isActive
     swapFee: BigDecimal!                                # Swap Fees
+    exitFee: BigDecimal!                                # Exit Fees
     totalWeight: BigDecimal!
     totalShares: BigDecimal!                            # Total pool token shares
     totalSwapVolume: BigDecimal!                        # Total swap volume in USD
@@ -31,7 +32,7 @@ type Pool @entity {
     joinsCount: BigInt!                                 # liquidity has been added
     exitsCount: BigInt!                                 # liquidity has been removed
     swapsCount: BigInt!
-    factoryID: Balancer!
+    factoryID: XDEFI!
     tx: Bytes                                           # Pool creation transaction id
     swaps: [Swap!] @derivedFrom(field: "poolAddress")
 }
@@ -78,6 +79,36 @@ type Swap @entity {
     poolTotalSwapFee: BigDecimal!           # Total pool swap fee in USD
     poolLiquidity: BigDecimal!              # Pool liquidity value in USD
     timestamp: Int!
+    referrer: Bytes!                        # Referrer address
+}
+
+type Referrals @entity {
+    id: ID!                                 # Referrer address
+    totalFeeValue: BigDecimal!              # Total Referral Fee in USD
+}
+
+type ReferralTrx @entity {
+    id: ID!                                 #
+    referrer: Bytes!                        # Referrer address
+    token: Bytes!                           # Referral token address
+    fee: BigDecimal!                        # Referral token amount
+    timestamp: Int!
+    poolId: String!                         # Pool Id
+}
+
+type SafuStats @entity {
+    id: ID!                                 # SAFU address
+    trxs: [SafuTrx!] @derivedFrom(field: "stats")
+}
+
+type SafuTrx @entity {
+    id: ID!                                 #
+    safu: Bytes!                            # SAFU address
+    token: Bytes!                           #
+    tokenSym: String!                       #
+    fee: BigDecimal!                        #
+    timestamp: Int!
+    stats: SafuStats!
 }
 
 type Transaction @entity {
