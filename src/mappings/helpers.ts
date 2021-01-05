@@ -13,19 +13,21 @@ import {
     PoolShare,
     TokenPrice,
     Transaction,
-    Balancer
+    XDEFI
 } from '../types/schema'
-import { BTokenBytes } from '../types/templates/Pool/BTokenBytes'
-import { BToken } from '../types/templates/Pool/BToken'
+import { XPTokenBytes } from '../types/templates/Pool/XPTokenBytes'
+import { XPToken } from '../types/templates/Pool/XPToken'
 
 export let ZERO_BD = BigDecimal.fromString('0')
 
 let network = dataSource.network()
 
+// mainnet or kovan
 export let WETH: string = (network == 'mainnet')
     ? '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
     : '0xd0a1e359811322d97991e03f863a0c30c2cf029c'
 
+// mainnet or kovan
 export let USD: string = (network == 'mainnet')
     ? '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48' // USDC
     : '0x4f96fe3b7a6cf9725f59d353f723c1bdb64ca6aa' // DAI
@@ -59,8 +61,8 @@ export function createPoolShareEntity(id: string, pool: string, user: string): v
 }
 
 export function createPoolTokenEntity(id: string, pool: string, address: string): void {
-    let token = BToken.bind(Address.fromString(address))
-    let tokenBytes = BTokenBytes.bind(Address.fromString(address))
+    let token = XPToken.bind(Address.fromString(address))
+    let tokenBytes = XPTokenBytes.bind(Address.fromString(address))
     let symbol = ''
     let name = ''
     let decimals = 18
@@ -207,7 +209,7 @@ export function updatePoolLiquidity(id: string): void {
         }
     }
 
-    let factory = Balancer.load('1')
+    let factory = XDEFI.load('1')
     factory.totalLiquidity = factory.totalLiquidity.minus(pool.liquidity).plus(liquidity)
     factory.save()
 

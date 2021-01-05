@@ -1,6 +1,6 @@
-# 📊 XDefi Subgraph
+# 📊 XDEFI-BASE Subgraph
 
-Aims to deliver analytics & historical data for XDefi. 
+Aims to deliver analytics & historical data for XDEFI-BASE. 
 
 Still a work in progress. Feel free to contribute!
 
@@ -16,6 +16,7 @@ graph auth https://api.thegraph.com/deploy/ <key>
 ```
 yarn install
 yarn codegen
+yarn build
 yarn deploy:kovan
 ```
 

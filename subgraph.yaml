@@ -1,4 +1,4 @@
-specVersion: 0.0.3
+specVersion: 0.0.4
 description: xdefi-subgraph
 repository: https://github.com/xdefilab/xdefi-subgraph
 schema:
@@ -17,10 +17,10 @@ dataSources:
       language: wasm/assemblyscript
       file: ./src/mappings/factory.ts
       entities:
-        - Balancer
+        - XDEFI
       abis:
         - name: Factory
-          file: ./abis/BFactory.json
+          file: ./abis/XFactory.json
       eventHandlers:
         - event: LOG_NEW_POOL(indexed address,indexed address)
           handler: handleNewPool
@@ -37,15 +37,15 @@ templates:
       file: ./src/mappings/pool.ts
       entities:
         - Pool
-        - Balancer
+        - XDEFI
         - Swap
       abis:
         - name: Pool
-          file: ./abis/BPool.json
-        - name: BToken
-          file: ./abis/BToken.json
-        - name: BTokenBytes
-          file: ./abis/BTokenBytes32.json
+          file: ./abis/XPool.json
+        - name: XPToken
+          file: ./abis/XPToken.json
+        - name: XPTokenBytes
+          file: ./abis/XPTokenBytes32.json
       eventHandlers:
         - event: LOG_CALL(indexed bytes4,indexed address,bytes)
           topic0: "0x34e1990700000000000000000000000000000000000000000000000000000000"
@@ -68,12 +68,17 @@ templates:
         - event: LOG_CALL(indexed bytes4,indexed address,bytes)
           topic0: "0xcf5e7bd300000000000000000000000000000000000000000000000000000000"
           handler: handleUnbind
+        - event: LOG_CALL(indexed bytes4,indexed address,bytes)
+          topic0: "0xe5a583a900000000000000000000000000000000000000000000000000000000"
+          handler: handleSetExitFee
         - event: LOG_JOIN(indexed address,indexed address,uint256)
           handler: handleJoinPool
         - event: LOG_EXIT(indexed address,indexed address,uint256)
           handler: handleExitPool
         - event: LOG_SWAP(indexed address,indexed address,indexed address,uint256,uint256)
           handler: handleSwap
+        - event: LOG_REFER(indexed address,indexed address,uint256)
+          handler: handleReferral
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfer
       callHandlers:
