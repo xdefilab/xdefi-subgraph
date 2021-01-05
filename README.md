@@ -16,6 +16,7 @@ graph auth https://api.thegraph.com/deploy/ <key>
 ```
 yarn install
 yarn codegen
+yarn build
 yarn deploy:kovan
 ```
 

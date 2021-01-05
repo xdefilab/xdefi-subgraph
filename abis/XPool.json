@@ -138,25 +138,6 @@
                 {
                     "indexed": true,
                     "internalType": "address",
-                    "name": "tokenIn",
-                    "type": "address"
-                },
-                {
-                    "indexed": false,
-                    "internalType": "uint256",
-                    "name": "fee",
-                    "type": "uint256"
-                }
-            ],
-            "name": "LOG_SAFU",
-            "type": "event"
-        },
-        {
-            "anonymous": false,
-            "inputs": [
-                {
-                    "indexed": true,
-                    "internalType": "address",
                     "name": "caller",
                     "type": "address"
                 },

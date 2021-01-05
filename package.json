@@ -3,12 +3,14 @@
     "version": "0.1.0",
     "scripts": {
         "create": "graph create xdefilab/xdefikovan --node https://api.thegraph.com/deploy/",
-        "create:local": "graph create xdefilab/xdefikovan --node http://127.0.0.1:8020",
         "codegen": "graph codegen --output-dir src/types/",
         "build": "graph build",
         "deploy": "graph deploy xdefilab/xdefiBase --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
         "deploy:kovan": "graph deploy xdefilab/xdefiKovan subgraph.kovan.yaml --debug --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
-        "deploy:local": "graph deploy xdefilab/xdefikovan subgraph.yaml --debug --ipfs http://localhost:5001 --node http://127.0.0.1:8020"
+        "graphnode": "docker-compose up",
+        "create:local": "graph create xdefilab/xdefi-subgraph --node http://127.0.0.1:8020",
+        "remove:local": "graph remove --node http://localhost:8020/ xdefilab/xdefi-subgraph",
+        "deploy:local": "graph deploy xdefilab/xdefi-subgraph subgraph.kovan.yaml --debug --node http://localhost:8020/ --ipfs http://localhost:5001"
     },
     "devDependencies": {
         "@graphprotocol/graph-cli": "^0.18.0",
