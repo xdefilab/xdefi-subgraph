@@ -227,12 +227,18 @@ export function handleExitPool(event: LOG_EXIT): void {
  ************************************/
 
 export function handleReferral(event: LOG_REFER): void {
+    let poolId = event.address.toHex()
+    let tokenIn = event.params.tokenIn.toHex()
+    let poolTokenInId = poolId.concat('-').concat(tokenIn.toString())
+    let poolTokenIn = PoolToken.load(poolTokenInId)
+    let tokenFeeIn = tokenToDecimal(event.params.fee.toBigDecimal(), poolTokenIn.decimals)
+
     let referralTrx = new ReferralTrx(event.transaction.hash.toHex() + "-" + event.logIndex.toString())
     referralTrx.referrer = event.params.ref
     referralTrx.token = event.params.tokenIn
-    referralTrx.fee = event.params.fee.toBigDecimal()
+    referralTrx.fee = tokenFeeIn
     referralTrx.timestamp = event.block.timestamp
-    referralTrx.poolId = event.address.toHex()
+    referralTrx.poolId = poolId
     referralTrx.save()
 
     let referral = Referral.load(event.params.ref.toHex())
@@ -242,9 +248,8 @@ export function handleReferral(event: LOG_REFER): void {
     }
 
     //update total value
-    let referFeeValue = ZERO_BD
     let tokenPrice = TokenPrice.load(event.params.tokenIn.toHex())
-    referFeeValue = tokenPrice.price.times(referralTrx.fee)
+    let referFeeValue = tokenPrice.price.times(tokenFeeIn)
 
     referral.totalFeeValue = referral.totalFeeValue.plus(referFeeValue)
     referral.save()
@@ -299,7 +304,7 @@ export function handleSwap(event: LOG_SWAP): void {
         pool.totalSwapVolume = totalSwapVolume
         pool.totalSwapFee = totalSwapFee
     }
-    pool.swapsCount += BigInt.fromI32(1)
+    pool.swapsCount = pool.swapsCount.plus(BigInt.fromI32(1))
     if (newAmountIn.equals(ZERO_BD) || newAmountOut.equals(ZERO_BD)) {
         pool.active = false
     }
