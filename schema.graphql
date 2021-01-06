@@ -92,7 +92,7 @@ type ReferralTrx @entity {
     referrer: Bytes!                        # Referrer address
     token: Bytes!                           # Referral token address
     fee: BigDecimal!                        # Referral token amount
-    timestamp: Int!
+    timestamp: BigInt!
     poolId: String!                         # Pool Id
 }
 

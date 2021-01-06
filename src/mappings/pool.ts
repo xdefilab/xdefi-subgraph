@@ -231,7 +231,7 @@ export function handleReferral(event: LOG_REFER): void {
     referralTrx.referrer = event.params.ref
     referralTrx.token = event.params.tokenIn
     referralTrx.fee = event.params.fee.toBigDecimal()
-    referralTrx.timestamp = event.block.timestamp.toI32()
+    referralTrx.timestamp = event.block.timestamp
     referralTrx.poolId = event.address.toHex()
     referralTrx.save()
 
