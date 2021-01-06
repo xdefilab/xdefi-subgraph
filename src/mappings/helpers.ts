@@ -69,37 +69,37 @@ export function createPoolTokenEntity(id: string, pool: string, address: string)
 
     // COMMENT THE LINES BELOW OUT FOR LOCAL DEV ON KOVAN
 
-    // let symbolCall = token.try_symbol()
-    // let nameCall = token.try_name()
-    // let decimalCall = token.try_decimals()
+    let symbolCall = token.try_symbol()
+    let nameCall = token.try_name()
+    let decimalCall = token.try_decimals()
 
-    // if (symbolCall.reverted) {
-    //     let symbolBytesCall = tokenBytes.try_symbol()
-    //     if (!symbolBytesCall.reverted) {
-    //         symbol = symbolBytesCall.value.toString()
-    //     }
-    // } else {
-    //     symbol = symbolCall.value
-    // }
+    if (symbolCall.reverted) {
+        let symbolBytesCall = tokenBytes.try_symbol()
+        if (!symbolBytesCall.reverted) {
+            symbol = symbolBytesCall.value.toString()
+        }
+    } else {
+        symbol = symbolCall.value
+    }
 
-    // if (nameCall.reverted) {
-    //     let nameBytesCall = tokenBytes.try_name()
-    //     if (!nameBytesCall.reverted) {
-    //         name = nameBytesCall.value.toString()
-    //     }
-    // } else {
-    //     name = nameCall.value
-    // }
+    if (nameCall.reverted) {
+        let nameBytesCall = tokenBytes.try_name()
+        if (!nameBytesCall.reverted) {
+            name = nameBytesCall.value.toString()
+        }
+    } else {
+        name = nameCall.value
+    }
 
-    // if (!decimalCall.reverted) {
-    //     decimals = decimalCall.value
-    // }
+    if (!decimalCall.reverted) {
+        decimals = decimalCall.value
+    }
 
     // COMMENT THE LINES ABOVE OUT FOR LOCAL DEV ON KOVAN
 
     // !!! COMMENT THE LINES BELOW OUT FOR NON-LOCAL DEPLOYMENT
     // This code allows Symbols to be added when testing on local Kovan
-
+    /*
     if (address == '0xd0a1e359811322d97991e03f863a0c30c2cf029c')
         symbol = 'WETH';
     else if (address == '0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa')
@@ -114,7 +114,7 @@ export function createPoolTokenEntity(id: string, pool: string, address: string)
         symbol = 'SNX'
     else if (address == '0x8c9e6c40d3402480ace624730524facc5482798c')
         symbol = 'REP'
-
+    */
     // !!! COMMENT THE LINES ABOVE OUT FOR NON-LOCAL DEPLOYMENT
 
     let poolToken = new PoolToken(id)
