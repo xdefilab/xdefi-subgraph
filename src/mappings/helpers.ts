@@ -231,7 +231,7 @@ export function saveTransaction(event: ethereum.Event, eventName: string): void 
     transaction.gasPrice = event.transaction.gasPrice.toBigDecimal()
     transaction.tx = event.transaction.hash
     transaction.timestamp = event.block.timestamp
-    transaction.block = event.block.number.toI32()
+    transaction.block = event.block.number
     transaction.save()
 
     createUserEntity(userAddress)

@@ -101,7 +101,7 @@ type Transaction @entity {
     id: ID!                         # Log ID
     tx: Bytes!
     event: String
-    block: Int!
+    block: BigInt!
     timestamp: BigInt!
     gasUsed: BigDecimal!
     gasPrice: BigDecimal!

@@ -928,21 +928,6 @@
             "constant": false,
             "inputs": [
                 {
-                    "internalType": "uint256",
-                    "name": "exitFee",
-                    "type": "uint256"
-                }
-            ],
-            "name": "setExitFee",
-            "outputs": [],
-            "payable": false,
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "constant": false,
-            "inputs": [
-                {
                     "internalType": "address",
                     "name": "manager",
                     "type": "address"

@@ -56,16 +56,6 @@ export function handleSetPublicSwap(event: LOG_CALL): void {
     saveTransaction(event, 'setPublicSwap')
 }
 
-export function handleSetExitFee(event: LOG_CALL): void {
-    let poolId = event.address.toHex()
-    let pool = Pool.load(poolId)
-    let exitFee = hexToDecimal(event.params.data.toHexString().slice(-40), 18)
-    pool.exitFee = exitFee
-    pool.save()
-
-    saveTransaction(event, 'setExitFee')
-}
-
 export function handleFinalize(event: LOG_CALL): void {
     let poolId = event.address.toHex()
     let pool = Pool.load(poolId)
