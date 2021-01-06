@@ -82,7 +82,7 @@ type Swap @entity {
     referrer: Bytes!                        # Referrer address
 }
 
-type Referrals @entity {
+type Referral @entity {
     id: ID!                                 # Referrer address
     totalFeeValue: BigDecimal!              # Total Referral Fee in USD
 }
@@ -94,21 +94,6 @@ type ReferralTrx @entity {
     fee: BigDecimal!                        # Referral token amount
     timestamp: BigInt!
     poolId: String!                         # Pool Id
-}
-
-type SafuStats @entity {
-    id: ID!                                 # SAFU address
-    trxs: [SafuTrx!] @derivedFrom(field: "stats")
-}
-
-type SafuTrx @entity {
-    id: ID!                                 #
-    safu: Bytes!                            # SAFU address
-    token: Bytes!                           #
-    tokenSym: String!                       #
-    fee: BigDecimal!                        #
-    timestamp: Int!
-    stats: SafuStats!
 }
 
 type Transaction @entity {

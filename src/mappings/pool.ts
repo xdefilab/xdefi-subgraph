@@ -8,7 +8,7 @@ import {
     PoolShare,
     Swap,
     TokenPrice,
-    Referrals,
+    Referral,
     ReferralTrx
 } from '../types/schema'
 import {
@@ -235,10 +235,10 @@ export function handleReferral(event: LOG_REFER): void {
     referralTrx.poolId = event.address.toHex()
     referralTrx.save()
 
-    let referrals = Referrals.load(event.params.ref.toHex())
-    if (referrals == null) {
-        referrals = new Referrals(event.params.ref.toHex())
-        referrals.totalFeeValue = ZERO_BD;
+    let referral = Referral.load(event.params.ref.toHex())
+    if (referral == null) {
+        referral = new Referral(event.params.ref.toHex())
+        referral.totalFeeValue = ZERO_BD;
     }
 
     //update total value
@@ -246,8 +246,8 @@ export function handleReferral(event: LOG_REFER): void {
     let tokenPrice = TokenPrice.load(event.params.tokenIn.toHex())
     referFeeValue = tokenPrice.price.times(referralTrx.fee)
 
-    referrals.totalFeeValue = referrals.totalFeeValue.plus(referFeeValue)
-    referrals.save()
+    referral.totalFeeValue = referral.totalFeeValue.plus(referFeeValue)
+    referral.save()
 }
 
 export function handleSwap(event: LOG_SWAP): void {
