@@ -26,7 +26,7 @@ type Pool @entity {
     tokensList: [Bytes!]!                               # Temp workaround until graph supports filtering on derived field
     tokens: [PoolToken!] @derivedFrom(field: "poolId")
     shares: [PoolShare!] @derivedFrom(field: "poolId")
-    createTime: Int!                                    # Block time pool was created
+    createTime: BigInt!                                    # Block time pool was created
     tokensCount: BigInt!                                # Number of tokens in the pool
     holdersCount: BigInt!                               # Number of addresses holding a positive balance of BPT
     joinsCount: BigInt!                                 # liquidity has been added
@@ -78,13 +78,14 @@ type Swap @entity {
     poolTotalSwapVolume: BigDecimal!        # Total pool swap volume in USD
     poolTotalSwapFee: BigDecimal!           # Total pool swap fee in USD
     poolLiquidity: BigDecimal!              # Pool liquidity value in USD
-    timestamp: Int!
+    timestamp: BigInt!
     referrer: Bytes!                        # Referrer address
 }
 
 type Referral @entity {
     id: ID!                                 # Referrer address
     totalFeeValue: BigDecimal!              # Total Referral Fee in USD
+    lastUpdated: BigInt!                    # Timestamp
 }
 
 type ReferralTrx @entity {
@@ -101,7 +102,7 @@ type Transaction @entity {
     tx: Bytes!
     event: String
     block: Int!
-    timestamp: Int!
+    timestamp: BigInt!
     gasUsed: BigDecimal!
     gasPrice: BigDecimal!
     poolAddress: Pool

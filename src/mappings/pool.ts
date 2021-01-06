@@ -187,7 +187,7 @@ export function handleGulp(call: GulpCall): void {
 export function handleJoinPool(event: LOG_JOIN): void {
     let poolId = event.address.toHex()
     let pool = Pool.load(poolId)
-    pool.joinsCount += BigInt.fromI32(1)
+    pool.joinsCount = pool.joinsCount.plus(BigInt.fromI32(1))
     pool.save()
 
     let address = event.params.tokenIn.toHex()
@@ -214,7 +214,7 @@ export function handleExitPool(event: LOG_EXIT): void {
     poolToken.save()
 
     let pool = Pool.load(poolId)
-    pool.exitsCount += BigInt.fromI32(1)
+    pool.exitsCount = pool.exitsCount.plus(BigInt.fromI32(1))
     if (newAmount.equals(ZERO_BD)) pool.active = false
     pool.save()
 
@@ -248,11 +248,14 @@ export function handleReferral(event: LOG_REFER): void {
     }
 
     //update total value
-    let tokenPrice = TokenPrice.load(event.params.tokenIn.toHex())
-    let referFeeValue = tokenPrice.price.times(tokenFeeIn)
+    // let tokenPrice = TokenPrice.load(event.params.tokenIn.toHex())
+    // let referFeeValue = tokenPrice.price.times(tokenFeeIn)
 
-    referral.totalFeeValue = referral.totalFeeValue.plus(referFeeValue)
+    // referral.totalFeeValue = referral.totalFeeValue.plus(referFeeValue)
+    referral.lastUpdated = event.block.timestamp
     referral.save()
+
+    saveTransaction(event, 'referral')
 }
 
 export function handleSwap(event: LOG_SWAP): void {
@@ -325,7 +328,7 @@ export function handleSwap(event: LOG_SWAP): void {
     swap.poolLiquidity = liquidity
     swap.value = swapValue
     swap.feeValue = swapFeeValue
-    swap.timestamp = event.block.timestamp.toI32()
+    swap.timestamp = event.block.timestamp
     swap.save()
 
     saveTransaction(event, 'swap')
