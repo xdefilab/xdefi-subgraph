@@ -27,6 +27,21 @@
             "type": "event"
         },
         {
+            "constant": false,
+            "inputs": [],
+            "name": "newXPool",
+            "outputs": [
+                {
+                    "internalType": "contract XPool",
+                    "name": "",
+                    "type": "address"
+                }
+            ],
+            "payable": false,
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
             "anonymous": false,
             "inputs": [
                 {
@@ -44,6 +59,21 @@
             ],
             "name": "SET_CORE",
             "type": "event"
+        },
+        {
+            "constant": false,
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "_core",
+                    "type": "address"
+                }
+            ],
+            "name": "setCore",
+            "outputs": [],
+            "payable": false,
+            "stateMutability": "nonpayable",
+            "type": "function"
         },
         {
             "constant": true,
@@ -94,51 +124,6 @@
             ],
             "payable": false,
             "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "constant": false,
-            "inputs": [],
-            "name": "newXPool",
-            "outputs": [
-                {
-                    "internalType": "contract XPool",
-                    "name": "",
-                    "type": "address"
-                }
-            ],
-            "payable": false,
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "constant": false,
-            "inputs": [
-                {
-                    "internalType": "address",
-                    "name": "_core",
-                    "type": "address"
-                }
-            ],
-            "name": "setCore",
-            "outputs": [],
-            "payable": false,
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "constant": false,
-            "inputs": [
-                {
-                    "internalType": "contract XPool",
-                    "name": "pool",
-                    "type": "address"
-                }
-            ],
-            "name": "collect",
-            "outputs": [],
-            "payable": false,
-            "stateMutability": "nonpayable",
             "type": "function"
         }
     ]

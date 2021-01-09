@@ -6,11 +6,11 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: Factory
-    network: kovan
+    network: mainnet
     source:
       address: "0x52461f449B4B7aa97F0a7B70a722c71d351F0544"
       abi: Factory
-      startBlock: 20850241
+      startBlock: 22933100
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -27,7 +27,7 @@ dataSources:
 templates:
   - kind: ethereum/contract
     name: Pool
-    network: kovan
+    network: mainnet
     source:
       abi: Pool
     mapping:
@@ -74,8 +74,6 @@ templates:
           handler: handleExitPool
         - event: LOG_SWAP(indexed address,indexed address,indexed address,uint256,uint256)
           handler: handleSwap
-        - event: LOG_REFER(indexed address,indexed address,uint256)
-          handler: handleReferral
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfer
       callHandlers:

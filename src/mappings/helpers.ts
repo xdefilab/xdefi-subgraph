@@ -22,15 +22,16 @@ export let ZERO_BD = BigDecimal.fromString('0')
 
 let network = dataSource.network()
 
-// mainnet or kovan
-export let WETH: string = (network == 'mainnet')
-    ? '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
-    : '0xd0a1e359811322d97991e03f863a0c30c2cf029c'
+// Config for mainnet
+let WETH = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
+let USD = '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48' // USDC
+let DAI = '0x6b175474e89094c44da98b954eedeac495271d0f'
 
-// mainnet or kovan
-export let USD: string = (network == 'mainnet')
-    ? '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48' // USDC
-    : '0x4f96fe3b7a6cf9725f59d353f723c1bdb64ca6aa' // DAI
+if (network == 'kovan') {
+    WETH = '0xd0A1E359811322d97991E03f863a0C30C2cF029C'
+    USD = '0xb7a4F3E9097C08dA09517b5aB877F7a917224ede'
+    DAI = '0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa'
+}
 
 export function hexToDecimal(hexString: String, decimals: i32): BigDecimal {
     let bytes = Bytes.fromHexString(hexString).reverse() as Bytes
@@ -154,6 +155,14 @@ export function updatePoolLiquidity(id: string): void {
             poolLiquidity = wethTokenPrice.price.times(poolToken.balance).div(poolToken.denormWeight).times(pool.totalWeight)
             hasPrice = true
         }
+    } else if (tokensList.includes(Address.fromString(DAI))) {
+        let daiTokenPrice = TokenPrice.load(DAI)
+        if (daiTokenPrice !== null) {
+            let poolTokenId = id.concat('-').concat(DAI)
+            let poolToken = PoolToken.load(poolTokenId)
+            poolLiquidity = daiTokenPrice.price.times(poolToken.balance).div(poolToken.denormWeight).times(pool.totalWeight)
+            hasPrice = true
+        }
     }
 
     // Create or update token price
@@ -173,7 +182,10 @@ export function updatePoolLiquidity(id: string): void {
 
             if (
                 (tokenPrice.poolTokenId == poolTokenId || poolLiquidity.gt(tokenPrice.poolLiquidity)) &&
-                (tokenPriceId != WETH.toString() || (pool.tokensCount.equals(BigInt.fromI32(2)) && hasUsdPrice))
+                (
+                    (tokenPriceId != WETH.toString() && tokenPriceId != DAI.toString()) ||
+                    (pool.tokensCount.equals(BigInt.fromI32(2)) && hasUsdPrice)
+                )
             ) {
                 tokenPrice.price = ZERO_BD
 
@@ -202,7 +214,7 @@ export function updatePoolLiquidity(id: string): void {
         if (tokenPrice !== null) {
             let poolTokenId = id.concat('-').concat(tokenPriceId)
             let poolToken = PoolToken.load(poolTokenId)
-            if (poolToken.denormWeight.gt(denormWeight)) {
+            if (tokenPrice.price.gt(ZERO_BD) && poolToken.denormWeight.gt(denormWeight)) {
                 denormWeight = poolToken.denormWeight
                 liquidity = tokenPrice.price.times(poolToken.balance).div(poolToken.denormWeight).times(pool.totalWeight)
             }

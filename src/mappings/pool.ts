@@ -8,7 +8,7 @@ import {
     PoolShare,
     Swap,
     TokenPrice,
-    Referral,
+    //Referral,
     ReferralTrx
 } from '../types/schema'
 import {
@@ -61,6 +61,7 @@ export function handleFinalize(event: LOG_CALL): void {
     let pool = Pool.load(poolId)
     // let balance = BigDecimal.fromString('100')
     pool.finalized = true
+    pool.symbol = 'XPT'
     pool.publicSwap = true
     // pool.totalShares = balance
     pool.save()
@@ -118,7 +119,9 @@ export function handleRebind(event: LOG_CALL): void {
     poolToken.denormWeight = denormWeight
     poolToken.save()
 
-    if (balance.equals(ZERO_BD)) pool.active = false
+    if (balance.equals(ZERO_BD)) {
+        pool.active = false
+    }
     pool.save()
 
     updatePoolLiquidity(poolId)
@@ -135,7 +138,6 @@ export function handleUnbind(event: LOG_CALL): void {
     pool.tokensList = tokensList
     pool.tokensCount = BigInt.fromI32(tokensList.length)
 
-
     let address = Address.fromString(event.params.data.toHexString().slice(-40))
     let poolTokenId = poolId.concat('-').concat(address.toHexString())
     let poolToken = PoolToken.load(poolTokenId)
@@ -148,7 +150,6 @@ export function handleUnbind(event: LOG_CALL): void {
 
 export function handleGulp(call: GulpCall): void {
     let poolId = call.to.toHexString()
-    let pool = Pool.load(poolId)
 
     let address = call.inputs.token.toHexString()
 
@@ -177,7 +178,7 @@ export function handleGulp(call: GulpCall): void {
 export function handleJoinPool(event: LOG_JOIN): void {
     let poolId = event.address.toHex()
     let pool = Pool.load(poolId)
-    pool.joinsCount = pool.joinsCount.plus(BigInt.fromI32(1))
+    pool.joinsCount += BigInt.fromI32(1)
     pool.save()
 
     let address = event.params.tokenIn.toHex()
@@ -204,8 +205,10 @@ export function handleExitPool(event: LOG_EXIT): void {
     poolToken.save()
 
     let pool = Pool.load(poolId)
-    pool.exitsCount = pool.exitsCount.plus(BigInt.fromI32(1))
-    if (newAmount.equals(ZERO_BD)) pool.active = false
+    pool.exitsCount += BigInt.fromI32(1)
+    if (newAmount.equals(ZERO_BD)) {
+        pool.active = false
+    }
     pool.save()
 
     updatePoolLiquidity(poolId)
@@ -216,34 +219,30 @@ export function handleExitPool(event: LOG_EXIT): void {
  ************** SWAPS ***************
  ************************************/
 
-export function handleReferral(event: LOG_REFER): void {
+export function handleRefer(event: LOG_REFER): void {
     let poolId = event.address.toHex()
-    let tokenIn = event.params.tokenIn.toHex()
-    let poolTokenInId = poolId.concat('-').concat(tokenIn.toString())
-    let poolTokenIn = PoolToken.load(poolTokenInId)
-    let tokenFeeIn = tokenToDecimal(event.params.fee.toBigDecimal(), poolTokenIn.decimals)
+    // let tokenIn = event.params.tokenIn.toHex()
+    // let poolTokenInId = poolId.concat('-').concat(tokenIn.toString())
+    // let poolTokenIn = PoolToken.load(poolTokenInId)
+    // let tokenFeeIn = tokenToDecimal(event.params.fee.toBigDecimal(), poolTokenIn.decimals)
 
     let referralTrx = new ReferralTrx(event.transaction.hash.toHex() + "-" + event.logIndex.toString())
+    referralTrx.caller = event.params.caller
     referralTrx.referrer = event.params.ref
     referralTrx.token = event.params.tokenIn
-    referralTrx.fee = tokenFeeIn
+    referralTrx.fee = event.params.fee.toBigDecimal()
     referralTrx.timestamp = event.block.timestamp
     referralTrx.poolId = poolId
     referralTrx.save()
 
-    let referral = Referral.load(event.params.ref.toHex())
-    if (referral == null) {
-        referral = new Referral(event.params.ref.toHex())
-        referral.totalFeeValue = ZERO_BD;
-    }
+    // let referral = Referral.load(event.params.ref.toHex())
+    // if (referral == null) {
+    //     referral = new Referral(event.params.ref.toHex())
+    //     referral.totalFeeValue = ZERO_BD;
+    // }
 
-    //update total value
-    // let tokenPrice = TokenPrice.load(event.params.tokenIn.toHex())
-    // let referFeeValue = tokenPrice.price.times(tokenFeeIn)
-
-    // referral.totalFeeValue = referral.totalFeeValue.plus(referFeeValue)
-    referral.lastUpdated = event.block.timestamp
-    referral.save()
+    // referral.lastUpdated = event.block.timestamp
+    // referral.save()
 
     saveTransaction(event, 'referral')
 }
@@ -276,15 +275,38 @@ export function handleSwap(event: LOG_SWAP): void {
     }
 
     let pool = Pool.load(poolId)
-    let tokenPrice = TokenPrice.load(tokenOut)
+    let tokensList: Array<Bytes> = pool.tokensList
+    let tokenOutPriceValue = ZERO_BD
+    let tokenOutPrice = TokenPrice.load(tokenOut)
+
+    if (tokenOutPrice != null) {
+        tokenOutPriceValue = tokenOutPrice.price
+    } else {
+        for (let i: i32 = 0; i < tokensList.length; i++) {
+            let tokenPriceId = tokensList[i].toHexString()
+            if (!tokenOutPriceValue.gt(ZERO_BD) && tokenPriceId !== tokenOut) {
+                let tokenPrice = TokenPrice.load(tokenPriceId)
+                if (tokenPrice !== null && tokenPrice.price.gt(ZERO_BD)) {
+                    let poolTokenId = poolId.concat('-').concat(tokenPriceId)
+                    let poolToken = PoolToken.load(poolTokenId)
+                    tokenOutPriceValue = tokenPrice.price
+                        .times(poolToken.balance)
+                        .div(poolToken.denormWeight)
+                        .times(poolTokenOut.denormWeight)
+                        .div(poolTokenOut.balance)
+                }
+            }
+        }
+    }
+
     let totalSwapVolume = pool.totalSwapVolume
     let totalSwapFee = pool.totalSwapFee
     let liquidity = pool.liquidity
     let swapValue = ZERO_BD
     let swapFeeValue = ZERO_BD
 
-    if (tokenPrice !== null) {
-        swapValue = tokenPrice.price.times(tokenAmountOut)
+    if (tokenOutPriceValue.gt(ZERO_BD)) {
+        swapValue = tokenOutPriceValue.times(tokenAmountOut)
         swapFeeValue = swapValue.times(pool.swapFee)
         totalSwapVolume = totalSwapVolume.plus(swapValue)
         totalSwapFee = totalSwapFee.plus(swapFeeValue)
@@ -297,11 +319,10 @@ export function handleSwap(event: LOG_SWAP): void {
         pool.totalSwapVolume = totalSwapVolume
         pool.totalSwapFee = totalSwapFee
     }
-    pool.swapsCount = pool.swapsCount.plus(BigInt.fromI32(1))
+    pool.swapsCount += BigInt.fromI32(1)
     if (newAmountIn.equals(ZERO_BD) || newAmountOut.equals(ZERO_BD)) {
         pool.active = false
     }
-
     pool.save()
 
     swap.caller = event.params.caller

@@ -15,9 +15,10 @@ type Pool @entity {
     controller: Bytes!                                  # Controller address
     publicSwap: Boolean!                                # isPublicSwap
     finalized: Boolean!                                 # isFinalized
+    symbol: String                                      # Pool token symbol
+    name: String                                        # Pool token name
     active: Boolean!                                    # isActive
     swapFee: BigDecimal!                                # Swap Fees
-    exitFee: BigDecimal!                                # Exit Fees
     totalWeight: BigDecimal!
     totalShares: BigDecimal!                            # Total pool token shares
     totalSwapVolume: BigDecimal!                        # Total swap volume in USD
@@ -26,7 +27,7 @@ type Pool @entity {
     tokensList: [Bytes!]!                               # Temp workaround until graph supports filtering on derived field
     tokens: [PoolToken!] @derivedFrom(field: "poolId")
     shares: [PoolShare!] @derivedFrom(field: "poolId")
-    createTime: BigInt!                                    # Block time pool was created
+    createTime: BigInt!                                 # Block time pool was created
     tokensCount: BigInt!                                # Number of tokens in the pool
     holdersCount: BigInt!                               # Number of addresses holding a positive balance of BPT
     joinsCount: BigInt!                                 # liquidity has been added
@@ -79,22 +80,22 @@ type Swap @entity {
     poolTotalSwapFee: BigDecimal!           # Total pool swap fee in USD
     poolLiquidity: BigDecimal!              # Pool liquidity value in USD
     timestamp: BigInt!
-    referrer: Bytes!                        # Referrer address
 }
 
-type Referral @entity {
-    id: ID!                                 # Referrer address
-    totalFeeValue: BigDecimal!              # Total Referral Fee in USD
-    lastUpdated: BigInt!                    # Timestamp
-}
+#type Referral @entity {
+#    id: ID!                                 # Referrer address
+#    totalFeeValue: BigDecimal!              # Total Referral Fee in USD
+#    lastUpdated: BigInt!                    # Timestamp
+#}
 
 type ReferralTrx @entity {
-    id: ID!                                 #
-    referrer: Bytes!                        # Referrer address
-    token: Bytes!                           # Referral token address
-    fee: BigDecimal!                        # Referral token amount
-    timestamp: BigInt!
-    poolId: String!                         # Pool Id
+   id: ID!                                 # Swap transaction id
+   caller: Bytes!                          # Caller address
+   referrer: Bytes!                        # Referrer address
+   token: Bytes!                           # Referral token address
+   fee: BigDecimal!                        # Referral token amount
+   timestamp: BigInt!
+   poolId: String!                         # Pool Id
 }
 
 type Transaction @entity {
