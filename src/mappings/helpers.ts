@@ -17,6 +17,7 @@ import {
 } from '../types/schema'
 import { XPTokenBytes } from '../types/templates/Pool/XPTokenBytes'
 import { XPToken } from '../types/templates/Pool/XPToken'
+import { log } from '@graphprotocol/graph-ts'
 
 export let ZERO_BD = BigDecimal.fromString('0')
 
@@ -140,18 +141,21 @@ export function updatePoolLiquidity(id: string): void {
     let hasPrice = false
     let hasUsdPrice = false
     let poolLiquidity = ZERO_BD
-
     if (tokensList.includes(Address.fromString(USD))) {
         let usdPoolTokenId = id.concat('-').concat(USD)
         let usdPoolToken = PoolToken.load(usdPoolTokenId)
-        poolLiquidity = usdPoolToken.balance.div(usdPoolToken.denormWeight).times(pool.totalWeight)
-        hasPrice = true
-        hasUsdPrice = true
+
+        if (usdPoolToken !== null) {
+            poolLiquidity = usdPoolToken.balance.div(usdPoolToken.denormWeight).times(pool.totalWeight)
+            hasPrice = true
+            hasUsdPrice = true
+        }
     } else if (tokensList.includes(Address.fromString(WETH))) {
         let wethTokenPrice = TokenPrice.load(WETH)
         if (wethTokenPrice !== null) {
             let poolTokenId = id.concat('-').concat(WETH)
             let poolToken = PoolToken.load(poolTokenId)
+
             poolLiquidity = wethTokenPrice.price.times(poolToken.balance).div(poolToken.denormWeight).times(pool.totalWeight)
             hasPrice = true
         }
@@ -160,13 +164,16 @@ export function updatePoolLiquidity(id: string): void {
         if (daiTokenPrice !== null) {
             let poolTokenId = id.concat('-').concat(DAI)
             let poolToken = PoolToken.load(poolTokenId)
+
             poolLiquidity = daiTokenPrice.price.times(poolToken.balance).div(poolToken.denormWeight).times(pool.totalWeight)
             hasPrice = true
         }
+    } else {
+        let l = tokensList.length
+        log.info('tokensList does not include USD/WETH/DAI, length {}', [l.toString()])
     }
 
     // Create or update token price
-
     if (hasPrice) {
         for (let i: i32 = 0; i < tokensList.length; i++) {
             let tokenPriceId = tokensList[i].toHexString()
@@ -179,7 +186,6 @@ export function updatePoolLiquidity(id: string): void {
 
             let poolTokenId = id.concat('-').concat(tokenPriceId)
             let poolToken = PoolToken.load(poolTokenId)
-
             if (
                 (tokenPrice.poolTokenId == poolTokenId || poolLiquidity.gt(tokenPrice.poolLiquidity)) &&
                 (
@@ -204,13 +210,12 @@ export function updatePoolLiquidity(id: string): void {
     }
 
     // Update pool liquidity
-
     let liquidity = ZERO_BD
     let denormWeight = ZERO_BD
-
     for (let i: i32 = 0; i < tokensList.length; i++) {
         let tokenPriceId = tokensList[i].toHexString()
         let tokenPrice = TokenPrice.load(tokenPriceId)
+
         if (tokenPrice !== null) {
             let poolTokenId = id.concat('-').concat(tokenPriceId)
             let poolToken = PoolToken.load(poolTokenId)

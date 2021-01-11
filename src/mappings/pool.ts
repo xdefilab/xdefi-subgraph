@@ -21,6 +21,7 @@ import {
     saveTransaction,
     ZERO_BD
 } from './helpers'
+//import { log } from '@graphprotocol/graph-ts'
 
 /************************************
  ********** Pool Controls ***********
@@ -221,6 +222,7 @@ export function handleExitPool(event: LOG_EXIT): void {
 
 export function handleRefer(event: LOG_REFER): void {
     let poolId = event.address.toHex()
+
     // let tokenIn = event.params.tokenIn.toHex()
     // let poolTokenInId = poolId.concat('-').concat(tokenIn.toString())
     // let poolTokenIn = PoolToken.load(poolTokenInId)
