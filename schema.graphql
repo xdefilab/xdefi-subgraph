@@ -18,7 +18,8 @@ type Pool @entity {
     symbol: String                                      # Pool token symbol
     name: String                                        # Pool token name
     active: Boolean!                                    # isActive
-    swapFee: BigDecimal!                                # Swap Fees
+    swapFee: BigDecimal!                                # Swap Fee
+    exitFee: BigDecimal!                                # Exit Fee
     totalWeight: BigDecimal!
     totalShares: BigDecimal!                            # Total pool token shares
     totalSwapVolume: BigDecimal!                        # Total swap volume in USD

@@ -6,11 +6,11 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: Factory
-    network: mainnet
+    network: kovan
     source:
-      address: "0x52461f449B4B7aa97F0a7B70a722c71d351F0544"
+      address: "0x60112d55f1F546EeeCdC79b1d25eCfA97D969C13"
       abi: Factory
-      startBlock: 22933100
+      startBlock: 23057060
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -27,7 +27,7 @@ dataSources:
 templates:
   - kind: ethereum/contract
     name: Pool
-    network: mainnet
+    network: kovan
     source:
       abi: Pool
     mapping:
@@ -48,32 +48,22 @@ templates:
           file: ./abis/XPTokenBytes32.json
       eventHandlers:
         - event: LOG_CALL(indexed bytes4,indexed address,bytes)
-          topic0: "0x34e1990700000000000000000000000000000000000000000000000000000000"
-          handler: handleSetSwapFee
-        - event: LOG_CALL(indexed bytes4,indexed address,bytes)
           topic0: "0x92eefe9b00000000000000000000000000000000000000000000000000000000"
           handler: handleSetController
-        - event: LOG_CALL(indexed bytes4,indexed address,bytes)
-          topic0: "0x49b5955200000000000000000000000000000000000000000000000000000000"
-          handler: handleSetPublicSwap
-        - event: LOG_CALL(indexed bytes4,indexed address,bytes)
-          topic0: "0x4bb278f300000000000000000000000000000000000000000000000000000000"
+        - event: LOG_EXIT_FEE(uint256)
+          handler: handleSetExitFee
+        - event: LOG_FINAL(uint256)
           handler: handleFinalize
-        - event: LOG_CALL(indexed bytes4,indexed address,bytes)
-          topic0: "0x3fdddaa200000000000000000000000000000000000000000000000000000000"
-          handler: handleRebind
-        - event: LOG_CALL(indexed bytes4,indexed address,bytes)
-          topic0: "0xe4e1e53800000000000000000000000000000000000000000000000000000000"
-          handler: handleRebind
-        - event: LOG_CALL(indexed bytes4,indexed address,bytes)
-          topic0: "0xcf5e7bd300000000000000000000000000000000000000000000000000000000"
-          handler: handleUnbind
+        - event: LOG_BIND(indexed address,indexed address,uint256,uint256)
+          handler: handleBind
         - event: LOG_JOIN(indexed address,indexed address,uint256)
           handler: handleJoinPool
         - event: LOG_EXIT(indexed address,indexed address,uint256)
           handler: handleExitPool
         - event: LOG_SWAP(indexed address,indexed address,indexed address,uint256,uint256)
           handler: handleSwap
+        - event: LOG_REFER(indexed address,indexed address,indexed address,uint256)
+          handler: handleRefer
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfer
       callHandlers:
