@@ -49,8 +49,6 @@ export function handleSetController(event: LOG_CALL): void {
 export function handleFinalize(event: LOG_FINAL): void {
     let poolId = event.address.toHex()
 
-    log.info('handle Finalize poolId {}', [poolId])
-
     let pool = Pool.load(poolId)
     // let balance = BigDecimal.fromString('100')
     pool.finalized = true
@@ -91,7 +89,6 @@ export function handleBind(event: LOG_BIND): void {
     pool.tokensCount = BigInt.fromI32(tokensList.length)
 
     let denormWeight = event.params.denorm.toBigDecimal()
-    log.info('handle Bind poolId {} token {} denormWeight {}', [poolId, event.params.token.toHexString(), denormWeight.toString()])
 
     let poolTokenId = poolId.concat('-').concat(event.params.token.toHexString())
     let poolToken = PoolToken.load(poolTokenId)
@@ -108,8 +105,6 @@ export function handleBind(event: LOG_BIND): void {
     //         pool.totalWeight = pool.totalWeight - (oldWeight - denormWeight)
     //     }
     // }
-
-    log.info('handle Bind pool.totalWeight {}', [pool.totalWeight.toString()])
 
     let balance = bigIntToDecimal(event.params.balance, poolToken.decimals)
 

@@ -29,9 +29,9 @@ let USD = '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48' // USDC
 let DAI = '0x6b175474e89094c44da98b954eedeac495271d0f'
 
 if (network == 'kovan') {
-    WETH = '0xd0A1E359811322d97991E03f863a0C30C2cF029C'
-    USD = '0xb7a4F3E9097C08dA09517b5aB877F7a917224ede'
-    DAI = '0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa'
+    WETH = '0xd0a1e359811322d97991e03f863a0c30c2cf029c'
+    USD = '0xb7a4f3e9097c08da09517b5ab877f7a917224ede'
+    DAI = '0x4f96fe3b7a6cf9725f59d353f723c1bdb64ca6aa'
 }
 
 export function hexToDecimal(hexString: String, decimals: i32): BigDecimal {
