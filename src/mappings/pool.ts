@@ -88,6 +88,8 @@ export function handleBind(event: LOG_BIND): void {
     pool.tokensList = tokensList
     pool.tokensCount = BigInt.fromI32(tokensList.length)
 
+    //log.info('count {} poolId {} tokenBytes {}', [pool.tokensCount.toString(), poolId.toString(), tokenBytes.toString()])
+
     let denormWeight = event.params.denorm.toBigDecimal()
 
     let poolTokenId = poolId.concat('-').concat(event.params.token.toHexString())
@@ -97,6 +99,7 @@ export function handleBind(event: LOG_BIND): void {
         poolToken = PoolToken.load(poolTokenId)
         pool.totalWeight += denormWeight
     }
+
     // else {
     //     let oldWeight = poolToken.denormWeight
     //     if (denormWeight > oldWeight) {
@@ -107,6 +110,8 @@ export function handleBind(event: LOG_BIND): void {
     // }
 
     let balance = bigIntToDecimal(event.params.balance, poolToken.decimals)
+
+    //log.info('poolId {} poolTokenId {}', [poolId.toString(), poolTokenId])
 
     poolToken.balance = balance
     poolToken.denormWeight = denormWeight

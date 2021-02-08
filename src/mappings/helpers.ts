@@ -20,6 +20,7 @@ import { XPToken } from '../types/templates/Pool/XPToken'
 import { log } from '@graphprotocol/graph-ts'
 
 export let ZERO_BD = BigDecimal.fromString('0')
+export let ONE_BD = BigDecimal.fromString('1')
 
 let network = dataSource.network()
 
@@ -30,8 +31,8 @@ let DAI = '0x6b175474e89094c44da98b954eedeac495271d0f'
 
 if (network == 'kovan') {
     WETH = '0xd0a1e359811322d97991e03f863a0c30c2cf029c'
-    USD = '0xb7a4f3e9097c08da09517b5ab877f7a917224ede'
-    DAI = '0x4f96fe3b7a6cf9725f59d353f723c1bdb64ca6aa'
+    USD = '0x993e60ed0061637b9c2065d0e37444112429c4aa' //xusdt
+    DAI = '0xde99c79533eeb1897d1d12df3e5437d498ba82a6' //xdai
 }
 
 export function hexToDecimal(hexString: String, decimals: i32): BigDecimal {
@@ -127,17 +128,22 @@ export function createPoolTokenEntity(id: string, pool: string, address: string)
     poolToken.decimals = decimals
     poolToken.balance = ZERO_BD
     poolToken.denormWeight = ZERO_BD
+    poolToken.priceUSD = address === USD || address == DAI ? ONE_BD : ZERO_BD
+    poolToken.volume = ZERO_BD
     poolToken.save()
 }
 
 export function updatePoolLiquidity(id: string): void {
     let pool = Pool.load(id)
+    if (pool == null) {
+        throw new Error("Pool must be not null")
+    }
+
     let tokensList: Array<Bytes> = pool.tokensList
 
     if (!tokensList || pool.tokensCount.lt(BigInt.fromI32(2)) || !pool.publicSwap) return
 
     // Find pool liquidity
-
     let hasPrice = false
     let hasUsdPrice = false
     let poolLiquidity = ZERO_BD
@@ -170,8 +176,10 @@ export function updatePoolLiquidity(id: string): void {
         }
     } else {
         let l = tokensList.length
-        log.info('tokensList does not include USD/WETH/DAI, length {}', [l.toString()])
+        log.info('id {} not include USD {} WETH {} DAI {}, length {}', [id.toString(), USD, WETH, DAI, l.toString()])
     }
+
+    //log.info('id {} hasUsdPrice {} hasPrice {} poolLiquidity {}', [id.toString(), hasUsdPrice.toString(), hasPrice.toString(), poolLiquidity.toString()]);
 
     // Create or update token price
     if (hasPrice) {

@@ -48,6 +48,8 @@ type PoolToken @entity {
     address: String!
     balance: BigDecimal!
     denormWeight: BigDecimal!
+    priceUSD: BigDecimal!
+    volume: BigDecimal!
 }
 
 type PoolShare @entity {
