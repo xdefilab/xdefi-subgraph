@@ -31,8 +31,8 @@ let DAI = '0x6b175474e89094c44da98b954eedeac495271d0f'
 
 if (network == 'kovan') {
     WETH = '0xd0a1e359811322d97991e03f863a0c30c2cf029c'
-    USD = '0x993e60ed0061637b9c2065d0e37444112429c4aa' //xusdt
-    DAI = '0xde99c79533eeb1897d1d12df3e5437d498ba82a6' //xdai
+    USD = '0xde99c79533eeb1897d1d12df3e5437d498ba82a6' //xdai
+    DAI = '0x993e60ed0061637b9c2065d0e37444112429c4aa' //xusdt
 }
 
 export function hexToDecimal(hexString: String, decimals: i32): BigDecimal {
