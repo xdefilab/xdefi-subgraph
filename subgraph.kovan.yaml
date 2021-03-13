@@ -8,9 +8,9 @@ dataSources:
     name: Factory
     network: kovan
     source:
-      address: "0x61727f76e27E74DC8C26F7A78ad3e49C093548ef"
+      address: "0x33b6Bc31b6C1bbf52260A02AA9475041cC839eCf"
       abi: Factory
-      startBlock: 23817110
+      startBlock: 23864120
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
