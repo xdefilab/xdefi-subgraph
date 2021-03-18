@@ -58,6 +58,8 @@ templates:
           handler: handleBind
         - event: LOG_JOIN(indexed address,indexed address,uint256)
           handler: handleJoinPool
+        - event: LOG_SINGLE_JOIN(indexed address,indexed address,uint256)
+          handler: handleSingleJoinPool
         - event: LOG_EXIT(indexed address,indexed address,uint256)
           handler: handleExitPool
         - event: LOG_SWAP(indexed address,indexed address,indexed address,uint256,uint256)
@@ -66,6 +68,7 @@ templates:
           handler: handleRefer
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfer
-      callHandlers:
-        - function: gulp(address)
-          handler: handleGulp
+        - event: UPDATE_FARM(indexed address,bool)
+          handler: handleUpdateFarm
+        - event: LOG_UPDATE_SAFU(indexed address,uint256)
+          handler: handleUpdateSafu

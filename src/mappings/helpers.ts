@@ -22,7 +22,7 @@ import { log } from '@graphprotocol/graph-ts'
 export let ZERO_BD = BigDecimal.fromString('0')
 export let MIN_EFFETIVE_BD = BigDecimal.fromString('0.0001')
 export let ONE_BD = BigDecimal.fromString('1')
-
+export let DEFAULT_SAFU_FEE_BD = BigDecimal.fromString('0.0005')
 
 let network = dataSource.network()
 
