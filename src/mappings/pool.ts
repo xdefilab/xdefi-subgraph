@@ -1,5 +1,5 @@
 import { BigInt, Address, Bytes, store, BigDecimal } from '@graphprotocol/graph-ts'
-import { LOG_CALL, LOG_JOIN, LOG_EXIT, LOG_SWAP, LOG_REFER, LOG_BIND, LOG_FINAL, LOG_EXIT_FEE, Transfer, GulpCall } from '../types/templates/Pool/Pool'
+import { LOG_CALL, LOG_JOIN, LOG_SINGLE_JOIN, LOG_EXIT, LOG_SWAP, LOG_REFER, LOG_BIND, LOG_FINAL, LOG_EXIT_FEE, Transfer, UPDATE_FARM, LOG_UPDATE_SAFU } from '../types/templates/Pool/Pool'
 import { Pool as XPool } from '../types/templates/Pool/Pool'
 import {
     XDEFI,
@@ -89,8 +89,6 @@ export function handleBind(event: LOG_BIND): void {
     pool.tokensList = tokensList
     pool.tokensCount = BigInt.fromI32(tokensList.length)
 
-    //log.info('count {} poolId {} tokenBytes {}', [pool.tokensCount.toString(), poolId.toString(), tokenBytes.toString()])
-
     let denormWeight = event.params.denorm.toBigDecimal()
 
     let poolTokenId = poolId.concat('-').concat(event.params.token.toHexString())
@@ -101,19 +99,7 @@ export function handleBind(event: LOG_BIND): void {
         pool.totalWeight += denormWeight
     }
 
-    // else {
-    //     let oldWeight = poolToken.denormWeight
-    //     if (denormWeight > oldWeight) {
-    //         pool.totalWeight = pool.totalWeight + (denormWeight - oldWeight)
-    //     } else {
-    //         pool.totalWeight = pool.totalWeight - (oldWeight - denormWeight)
-    //     }
-    // }
-
     let balance = bigIntToDecimal(event.params.balance, poolToken.decimals)
-
-    //log.info('poolId {} poolTokenId {}', [poolId.toString(), poolTokenId])
-
     poolToken.balance = balance
     poolToken.denormWeight = denormWeight
     poolToken.save()
@@ -127,27 +113,23 @@ export function handleBind(event: LOG_BIND): void {
     saveTransaction(event, 'bind')
 }
 
-export function handleGulp(call: GulpCall): void {
-    let poolId = call.to.toHexString()
+export function handleUpdateFarm(event: UPDATE_FARM): void {
+    let poolId = event.address.toHex()
+    let pool = Pool.load(poolId)
+    pool.isFarm = event.params.isFarm;
 
-    let address = call.inputs.token.toHexString()
+    pool.save()
 
-    let bpool = XPool.bind(Address.fromString(poolId))
-    let balanceCall = bpool.try_getBalance(Address.fromString(address))
+    saveTransaction(event, 'updateFarm')
+}
 
-    let poolTokenId = poolId.concat('-').concat(address)
-    let poolToken = PoolToken.load(poolTokenId)
+export function handleUpdateSafu(event: LOG_UPDATE_SAFU): void {
+    let poolId = event.address.toHex()
+    let pool = Pool.load(poolId)
+    pool.safuFee = tokenToDecimal(event.params.fee.toBigDecimal(), 18)
+    pool.save()
 
-    if (poolToken != null) {
-        let balance = ZERO_BD
-        if (!balanceCall.reverted) {
-            balance = bigIntToDecimal(balanceCall.value, poolToken.decimals)
-        }
-        poolToken.balance = balance
-        poolToken.save()
-    }
-
-    updatePoolLiquidity(poolId)
+    saveTransaction(event, 'updateSafu')
 }
 
 /************************************
@@ -166,6 +148,30 @@ export function handleJoinPool(event: LOG_JOIN): void {
     let tokenAmountIn = tokenToDecimal(event.params.tokenAmountIn.toBigDecimal(), poolToken.decimals)
     let newAmount = poolToken.balance.plus(tokenAmountIn)
     poolToken.balance = newAmount
+    poolToken.save()
+
+    updatePoolLiquidity(poolId)
+    saveTransaction(event, 'join')
+}
+
+export function handleSingleJoinPool(event: LOG_SINGLE_JOIN): void {
+    let poolId = event.address.toHex()
+    let pool = Pool.load(poolId)
+    pool.joinsCount += BigInt.fromI32(1)
+    pool.save()
+
+    let address = event.params.tokenIn.toHex()
+    let poolTokenId = poolId.concat('-').concat(address.toString())
+    let poolToken = PoolToken.load(poolTokenId)
+    let tokenAmountIn = tokenToDecimal(event.params.tokenAmountIn.toBigDecimal(), poolToken.decimals)
+    let newAmountIn = poolToken.balance.plus(tokenAmountIn)
+    // to SAFU
+    let safuFee = tokenAmountIn.times(pool.safuFee)
+    if (pool.isFarm) {
+        safuFee = tokenAmountIn.times(pool.swapFee)
+    }
+    newAmountIn = newAmountIn.minus(safuFee)
+    poolToken.balance = newAmountIn
     poolToken.save()
 
     updatePoolLiquidity(poolId)
@@ -205,11 +211,6 @@ export function handleExitPool(event: LOG_EXIT): void {
 export function handleRefer(event: LOG_REFER): void {
     let poolId = event.address.toHex()
 
-    // let tokenIn = event.params.tokenIn.toHex()
-    // let poolTokenInId = poolId.concat('-').concat(tokenIn.toString())
-    // let poolTokenIn = PoolToken.load(poolTokenInId)
-    // let tokenFeeIn = tokenToDecimal(event.params.fee.toBigDecimal(), poolTokenIn.decimals)
-
     let referralTrx = new ReferralTrx(event.transaction.hash.toHex() + "-" + event.logIndex.toString())
     referralTrx.caller = event.params.caller
     referralTrx.referrer = event.params.ref
@@ -224,21 +225,40 @@ export function handleRefer(event: LOG_REFER): void {
     //     referral = new Referral(event.params.ref.toHex())
     //     referral.totalFeeValue = ZERO_BD;
     // }
-
     // referral.lastUpdated = event.block.timestamp
     // referral.save()
+
+    let pool = Pool.load(poolId)
+    let tokenIn = event.params.tokenIn.toHex()
+    let poolTokenInId = poolId.concat('-').concat(tokenIn.toString())
+    let poolTokenIn = PoolToken.load(poolTokenInId)
+    // to referral
+    let referFee = tokenToDecimal(event.params.fee.toBigDecimal(), poolTokenIn.decimals)
+    let newAmountIn = poolTokenIn.balance.minus(referFee)
+    if (pool.isFarm) {
+        newAmountIn = poolTokenIn.balance.plus(referFee)
+    }
+    poolTokenIn.balance = newAmountIn
+    poolTokenIn.save()
 
     saveTransaction(event, 'referral')
 }
 
 export function handleSwap(event: LOG_SWAP): void {
     let poolId = event.address.toHex()
-
+    let pool = Pool.load(poolId)
     let tokenIn = event.params.tokenIn.toHex()
     let poolTokenInId = poolId.concat('-').concat(tokenIn.toString())
     let poolTokenIn = PoolToken.load(poolTokenInId)
     let tokenAmountIn = tokenToDecimal(event.params.tokenAmountIn.toBigDecimal(), poolTokenIn.decimals)
     let newAmountIn = poolTokenIn.balance.plus(tokenAmountIn)
+    // to SAFU
+    let safuFee = tokenAmountIn.times(pool.safuFee)
+    if (pool.isFarm) {
+        safuFee = tokenAmountIn.times(pool.swapFee)
+    }
+    newAmountIn = newAmountIn.minus(safuFee)
+
     poolTokenIn.balance = newAmountIn
     poolTokenIn.save()
 
@@ -258,7 +278,6 @@ export function handleSwap(event: LOG_SWAP): void {
         swap = new Swap(swapId)
     }
 
-    let pool = Pool.load(poolId)
     let tokensList: Array<Bytes> = pool.tokensList
     let tokenOutPriceValue = ZERO_BD
     let tokenOutPrice = TokenPrice.load(tokenOut)
