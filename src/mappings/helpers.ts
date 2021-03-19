@@ -178,10 +178,7 @@ export function updatePoolLiquidity(id: string): void {
         }
     } else {
         let l = tokensList.length
-        log.info('id {} not include USD {} WETH {} DAI {}, length {}', [id.toString(), USD, WETH, DAI, l.toString()])
     }
-
-    //log.info('id {} hasUsdPrice {} hasPrice {} poolLiquidity {}', [id.toString(), hasUsdPrice.toString(), hasPrice.toString(), poolLiquidity.toString()]);
 
     // Create or update token price
     if (hasPrice) {
