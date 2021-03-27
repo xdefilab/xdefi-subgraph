@@ -270,6 +270,7 @@ export function handleSwap(event: LOG_SWAP): void {
     poolTokenOut.save()
 
     updatePoolLiquidity(poolId)
+    pool = Pool.load(poolId)
 
     let swapId = event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString())
     let swap = Swap.load(swapId)
