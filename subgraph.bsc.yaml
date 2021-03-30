@@ -8,9 +8,9 @@ dataSources:
     name: Factory
     network: bsc
     source:
-      address: "0x8488d9488C5e8F7491D3a855dE5EE863a865C388"
+      address: "0xD35bc3776D5e1888a6C043D1A4A940E8C1D89500"
       abi: Factory
-      startBlock: 7447950
+      startBlock: 6125850
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -70,3 +70,5 @@ templates:
           handler: handleUpdateFarm
         - event: LOG_UPDATE_SAFU(indexed address,uint256)
           handler: handleUpdateSafu
+        - event: LOG_GULP(indexed address,indexed address,uint256,uint256)
+          handler: handleGulp

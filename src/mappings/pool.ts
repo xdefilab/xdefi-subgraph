@@ -1,5 +1,5 @@
 import { BigInt, Address, Bytes, store, BigDecimal } from '@graphprotocol/graph-ts'
-import { LOG_CALL, LOG_JOIN, LOG_EXIT, LOG_SWAP, LOG_REFER, LOG_BIND, LOG_FINAL, LOG_EXIT_FEE, Transfer, UPDATE_FARM, LOG_UPDATE_SAFU, GulpCall } from '../types/templates/Pool/Pool'
+import { LOG_CALL, LOG_JOIN, LOG_EXIT, LOG_SWAP, LOG_REFER, LOG_BIND, LOG_FINAL, LOG_EXIT_FEE, Transfer, UPDATE_FARM, LOG_UPDATE_SAFU, LOG_GULP } from '../types/templates/Pool/Pool'
 import { Pool as XPool } from '../types/templates/Pool/Pool'
 import {
     XDEFI,
@@ -132,23 +132,13 @@ export function handleUpdateSafu(event: LOG_UPDATE_SAFU): void {
     saveTransaction(event, 'updateSafu')
 }
 
-export function handleGulp(call: GulpCall): void {
-    let poolId = call.to.toHexString()
+export function handleGulp(event: LOG_GULP): void {
+    let poolId = event.address.toHex()
 
-    let address = call.inputs.token.toHexString()
-
-    let pool = XPool.bind(Address.fromString(poolId))
-    let balanceCall = pool.try_getBalance(Address.fromString(address))
-
-    let poolTokenId = poolId.concat('-').concat(address)
+    let poolTokenId = poolId.concat('-').concat(event.params.token.toHexString())
     let poolToken = PoolToken.load(poolTokenId)
-
     if (poolToken != null) {
-        let balance = ZERO_BD
-        if (!balanceCall.reverted) {
-            balance = bigIntToDecimal(balanceCall.value, poolToken.decimals)
-        }
-        poolToken.balance = balance
+        poolToken.balance = bigIntToDecimal(event.params.amountAfter, poolToken.decimals)
         poolToken.save()
     }
 
