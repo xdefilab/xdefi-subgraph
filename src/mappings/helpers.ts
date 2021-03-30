@@ -27,9 +27,14 @@ export let DEFAULT_SAFU_FEE_BD = BigDecimal.fromString('0.0005')
 let network = dataSource.network()
 
 // Config for mainnet
-let WETH = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
-let USD = '0xdac17f958d2ee523a2206206994597c13d831ec7' //USDT
-let DAI = '0x6b175474e89094c44da98b954eedeac495271d0f' //DAI
+//let WETH = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
+//let USD = '0xdac17f958d2ee523a2206206994597c13d831ec7' //USDT
+//let DAI = '0x6b175474e89094c44da98b954eedeac495271d0f' //DAI
+
+// Config for bsc
+let WETH = '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c' //WBNB
+let USD = '0xe9e7cea3dedca5984780bafc599bd69add087d56' //BUSD
+let DAI = '0x55d398326f99059ff775485246999027b3197955' //USDT
 
 if (network == 'kovan') {
     WETH = '0xd0a1e359811322d97991e03f863a0c30c2cf029c'
