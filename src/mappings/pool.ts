@@ -180,7 +180,7 @@ export function handleExitPool(event: LOG_EXIT): void {
 
     let pool = Pool.load(poolId)
     pool.exitsCount += BigInt.fromI32(1)
-    if (newAmount.le(MIN_EFFETIVE_BD)) {
+    if (newAmount.equals(ZERO_BD)) {
         pool.active = false
 
         let factory = XDEFI.load('1')
