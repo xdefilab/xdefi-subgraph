@@ -183,9 +183,11 @@ export function handleExitPool(event: LOG_EXIT): void {
     if (newAmount.equals(ZERO_BD)) {
         pool.active = false
 
-        let factory = XDEFI.load('1')
-        factory.finalizedPoolCount = factory.finalizedPoolCount - 1
-        factory.save()
+        if (pool.finalized == true) {
+            let factory = XDEFI.load('1')
+            factory.finalizedPoolCount = factory.finalizedPoolCount - 1
+            factory.save()
+        }
     }
     pool.save()
 
